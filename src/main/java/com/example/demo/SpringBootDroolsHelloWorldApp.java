@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 public class SpringBootDroolsHelloWorldApp {
     
     private static final String drlFile = "rules/rules.drl";
+    private static final String accountsDrl = "rules/accounts.drl";
     
     public static void main(String[] args) {
         SpringApplication.run(SpringBootDroolsHelloWorldApp.class, args);
@@ -28,6 +29,7 @@ public class SpringBootDroolsHelloWorldApp {
 
         KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
         kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile));
+        kieFileSystem.write(ResourceFactory.newClassPathResource(accountsDrl));
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();
         KieModule kieModule = kieBuilder.getKieModule();
