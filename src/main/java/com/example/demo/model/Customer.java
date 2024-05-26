@@ -15,5 +15,6 @@ public class Customer {
     private String email;
     private Address address;
     private List<Account> accounts;
+    private String phoneNumber;
 
 }

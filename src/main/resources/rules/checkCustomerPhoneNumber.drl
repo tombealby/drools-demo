@@ -1,0 +1,10 @@
+package rules;
+
+import com.example.demo.model.Customer
+
+   rule "check customer phone number rule"
+    when
+     Customer (phoneNumber == null) // condition
+    then
+     System.out.println ("Customer is missing a phone number "); // consequence
+   end
