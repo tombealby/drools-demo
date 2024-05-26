@@ -23,13 +23,12 @@ public class SpringBootDroolsHelloWorldApp {
 
     @Bean
     public KieContainer kieContainer() {
-//        return KieServices.Factory.get().getKieClasspathContainer();
         
         KieServices kieServices = KieServices.Factory.get();
 
         KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
         kieFileSystem.write(ResourceFactory.newClassPathResource(drlFile));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(accountsDrl));
+//        kieFileSystem.write(ResourceFactory.newClassPathResource(accountsDrl));
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();
         KieModule kieModule = kieBuilder.getKieModule();
