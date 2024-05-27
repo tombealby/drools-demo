@@ -11,3 +11,22 @@ global BankingInquiryService inquiryService;
 
 import function com.example.demo.service.ValidationHelper.error;
 import function com.example.demo.service.ValidationHelper.warning;
+
+    rule "addressRequired"
+       when
+          Customer( address == null )
+       then
+          warning(kcontext);
+    end
+    rule "phoneNumberRequired"
+       when
+          Customer( phoneNumber == null || == "" )
+       then
+          error(kcontext);
+    end
+    rule "accountOwnerRequired"
+      when
+         $account : Account( owner == null )
+      then
+         error(kcontext, $account);
+    end

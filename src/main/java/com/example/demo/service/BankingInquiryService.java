@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Account;
-import com.example.demo.model.Product;
+import com.example.demo.model.Customer;
 
 @Service
 public class BankingInquiryService {
@@ -22,13 +22,12 @@ public class BankingInquiryService {
         return false;
     }
 
-//    public Account printAccountsLessThan100(Account account) {
-//        //get the stateful session
-//        KieSession kieSession = kieContainer.newKieSession(); //kieContainer.newKieSession("rulesSession");
-//        kieSession.insert(account);
-//        kieSession.fireAllRules();
-//        kieSession.dispose();
-//        return account;
-//    }
+    public void validate(Customer customer, Account account) {
+      KieSession kieSession = kieContainer.newKieSession(); //kieContainer.newKieSession("rulesSession");
+      kieSession.insert(customer);
+      kieSession.insert(account);
+      kieSession.fireAllRules();
+      kieSession.dispose();
+    }
 
 }
