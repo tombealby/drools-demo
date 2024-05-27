@@ -165,39 +165,25 @@ public class ValidationTest {
         return customer;
     }
 
-     @Test
-     public void studentAccountCustomerAgeLessThan()
-         throws Exception {
-         ValidationReport validationReport = new ValidationReportImpl();
+    @Test
+    public void studentAccountCustomerAgeLessThan() throws Exception {
+        ValidationReport validationReport = new ValidationReportImpl();
 
-         final Customer customer = createBasicCustomer();
-         customer.setDateOfBirth(parseDate("1954-02-14"));
-         final Account account = new Account();
+        final Customer customer = createBasicCustomer();
+        customer.setDateOfBirth(parseDate("1954-02-14"));
+        final Account account = new Account();
 //         account.setOwner(customer);
-         account.setBalance(220);
-         account.setType(Account.Type.STUDENT);
-         customer.getAccounts().add(account);
-         validateCustomer(customer, validationReport);
-         assertReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
+        account.setBalance(220);
+        account.setType(Account.Type.STUDENT);
+        customer.getAccounts().add(account);
+        validateCustomer(customer, validationReport);
+        assertReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
 
-//         customer.setDateOfBirth(parseDate("2010-02-14"));
-//         validationReport = new ValidationReportImpl();
-//         validateCustomer(customer, validationReport);
-//         assertNotReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
-
-         //         assertEquals(Account.Type.STUDENT,
-//            account.getType());
-//       assertNotReportContains(Message.Type.ERROR,
-//           "studentAccountCustomerAgeLessThan", customer);
-//
-//       account.setType(Account.Type.STUDENT);
-//       assertReportContains(Message.Type.ERROR,
-//           "studentAccountCustomerAgeLessThan", customer, account);
-//
-//       customer.setDateOfBirth(NOW.minusYears(20).toDate());
-//       assertNotReportContains(Message.Type.ERROR,
-//           "studentAccountCustomerAgeLessThan", customer);
-       }
+        customer.setDateOfBirth(parseDate("2010-02-14"));
+        validationReport = new ValidationReportImpl();
+        validateCustomer(customer, validationReport);
+        assertNotReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
+    }
      
     public static Date parseDate(String date) {
         try {
