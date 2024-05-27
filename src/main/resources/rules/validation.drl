@@ -33,7 +33,7 @@ dialect "mvel"
     end
     rule "accountBalanceAtLeast"
        when
-          myClass$ : Customer ( accounts$ : accounts  )
+          Customer ( accounts$ : accounts  )
        	  $account : Account( balance < 100 ) from accounts$
        then
           warning(kcontext, $account);
