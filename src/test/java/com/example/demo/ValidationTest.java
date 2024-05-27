@@ -1,9 +1,13 @@
 package com.example.demo;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -135,9 +139,7 @@ public class ValidationTest {
      @Test
      public void accountBalanceAtLeast() throws Exception {
          ValidationReport validationReport = new ValidationReportImpl();
-         final Customer customer = new Customer();
-         customer.setPhoneNumber("123456789");
-         customer.setAddress(new Address());
+         final Customer customer = createBasicCustomer();
          final Account account = new Account();
          account.setOwner(new Customer());
          account.setBalance(0);
@@ -155,5 +157,54 @@ public class ValidationTest {
          validateCustomer(customer, validationReport);
          assertNotReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
      }
+
+    private Customer createBasicCustomer() {
+        final Customer customer = new Customer();
+         customer.setPhoneNumber("123456789");
+         customer.setAddress(new Address());
+        return customer;
+    }
+
+     @Test
+     public void studentAccountCustomerAgeLessThan()
+         throws Exception {
+         ValidationReport validationReport = new ValidationReportImpl();
+
+         final Customer customer = createBasicCustomer();
+         customer.setDateOfBirth(parseDate("1954-02-14"));
+         final Account account = new Account();
+//         account.setOwner(customer);
+         account.setBalance(220);
+         account.setType(Account.Type.STUDENT);
+         customer.getAccounts().add(account);
+         validateCustomer(customer, validationReport);
+         assertReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
+
+//         customer.setDateOfBirth(parseDate("2010-02-14"));
+//         validationReport = new ValidationReportImpl();
+//         validateCustomer(customer, validationReport);
+//         assertNotReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
+
+         //         assertEquals(Account.Type.STUDENT,
+//            account.getType());
+//       assertNotReportContains(Message.Type.ERROR,
+//           "studentAccountCustomerAgeLessThan", customer);
+//
+//       account.setType(Account.Type.STUDENT);
+//       assertReportContains(Message.Type.ERROR,
+//           "studentAccountCustomerAgeLessThan", customer, account);
+//
+//       customer.setDateOfBirth(NOW.minusYears(20).toDate());
+//       assertNotReportContains(Message.Type.ERROR,
+//           "studentAccountCustomerAgeLessThan", customer);
+       }
+     
+    public static Date parseDate(String date) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
 
 }

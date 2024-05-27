@@ -10,6 +10,7 @@ global BankingInquiryService inquiryService;
 
 import function com.example.demo.service.ValidationHelper.error;
 import function com.example.demo.service.ValidationHelper.warning;
+import function com.example.demo.service.ValidationHelper.yearsPassedSince;
 
 dialect "mvel"
 
@@ -37,4 +38,11 @@ dialect "mvel"
        	  $account : Account( balance < 100 ) from accounts$
        then
           warning(kcontext, $account);
+    end
+    rule "studentAccountCustomerAgeLessThan"
+       when
+          $customer : Customer( eval (yearsPassedSince(dateOfBirth) >= 27) )
+          $account : Account( type == Account.Type.STUDENT ) from $customer.accounts
+       then
+          error(kcontext, $customer);
     end
