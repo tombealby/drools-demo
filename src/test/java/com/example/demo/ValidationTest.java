@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -58,6 +57,7 @@ public class ValidationTest {
       ValidationReport validationReport = new ValidationReportImpl();
       final Customer customer = new Customer();
       customer.setPhoneNumber("123456789");
+      customer.setDateOfBirth(parseDate("1954-02-14"));
       assertNull(customer.getAddress());
       validateCustomer(customer, validationReport);
       assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
@@ -140,6 +140,7 @@ public class ValidationTest {
      public void accountBalanceAtLeast() throws Exception {
          ValidationReport validationReport = new ValidationReportImpl();
          final Customer customer = createBasicCustomer();
+         customer.setDateOfBirth(parseDate("1954-02-14"));
          final Account account = new Account();
          account.setOwner(new Customer());
          account.setBalance(0);
