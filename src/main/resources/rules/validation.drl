@@ -29,3 +29,9 @@ import function com.example.demo.service.ValidationHelper.warning;
       then
          error(kcontext, $account);
     end
+    rule "accountBalanceAtLeast"
+       when
+           $account : Account( balance < 100 )
+       then
+           warning(kcontext, $account);
+    end

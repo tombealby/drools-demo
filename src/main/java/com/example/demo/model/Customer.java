@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Customer {
     private String uuid;
     private String email;
     private Address address;
-    private List<Account> accounts;
+    private List<Account> accounts = new ArrayList<>();
     private String phoneNumber;
 
 }

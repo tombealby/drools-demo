@@ -132,4 +132,31 @@ public class ValidationTest {
          kieSession.dispose();
      }
 
+     @Test
+     public void accountBalanceAtLeast() throws Exception {
+         ValidationReport validationReport = new ValidationReportImpl();
+         final Customer customer = new Customer();
+         customer.setPhoneNumber("123456789");
+         customer.setAddress(new Address());
+         final Account account = new Account();
+         account.setOwner(new Customer());
+         account.setBalance(0);
+         customer.getAccounts().add(account);
+         validateAccount(account, validationReport);
+//         validateCustomer(customer, validationReport);
+         assertReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
+
+         validationReport = new ValidationReportImpl();
+         account.setBalance(54);
+         validateAccount(account, validationReport);
+//         validateCustomer(customer, validationReport);
+         assertReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
+
+         validationReport = new ValidationReportImpl();
+         account.setBalance(122);
+         validateAccount(account, validationReport);
+//         validateCustomer(customer, validationReport);
+         assertNotReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
+     }
+
 }
