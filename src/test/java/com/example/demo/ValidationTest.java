@@ -52,33 +52,31 @@ public class ValidationTest {
     @Test
     public void addressRequired() throws Exception {
       ValidationReport validationReport = new ValidationReportImpl();
-      Customer customer = new Customer();
+      final Customer customer = new Customer();
       customer.setPhoneNumber("123456789");
       validateCustomer(customer, validationReport);
       assertNull(customer.getAddress());
-      assertReportContains(Message.Type.WARNING,
-         "addressRequired", customer, validationReport);
+      assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
 
       validationReport = new ValidationReportImpl();
       customer.setAddress(new Address());
       validateCustomer(customer, validationReport);
-      assertNotReportContains(Message.Type.WARNING,
-         "addressRequired", customer, validationReport);
+      assertNotReportContains(Message.Type.WARNING, "addressRequired", validationReport);
      }
 
-     private void assertReportContains(Type type, String messageString, Customer customer,
+     private void assertReportContains(Type type, String messageString,
              ValidationReport validationReport) {
          System.out.println("************assertReportContains***************");
-         assertReportContent(type, messageString, customer, validationReport, true);
+         assertReportContent(type, messageString, validationReport, true);
      }
 
-     private void assertNotReportContains(Type type, String messageString, Customer customer,
+     private void assertNotReportContains(Type type, String messageString,
              ValidationReport validationReport) {
          System.out.println("************assertReportContains***************");
-         assertReportContent(type, messageString, customer, validationReport, false);
+         assertReportContent(type, messageString, validationReport, false);
      }
 
-     private void assertReportContent(Type type, String messageString, Customer customer,
+     private void assertReportContent(Type type, String messageString,
              ValidationReport validationReport, boolean isMessageExpected) {
          System.out.println("************assertReportContent***************");
          Set<Message> messages = validationReport.getMessages();
