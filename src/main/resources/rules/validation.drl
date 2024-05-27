@@ -11,6 +11,8 @@ global BankingInquiryService inquiryService;
 import function com.example.demo.service.ValidationHelper.error;
 import function com.example.demo.service.ValidationHelper.warning;
 
+dialect "mvel"
+
     rule "addressRequired"
        when
           Customer( address == null )
@@ -31,7 +33,8 @@ import function com.example.demo.service.ValidationHelper.warning;
     end
     rule "accountBalanceAtLeast"
        when
-           $account : Account( balance < 100 )
+          myClass$ : Customer ( accounts$ : accounts  )
+       	  $account : Account( balance < 100 ) from accounts$
        then
-           warning(kcontext, $account);
+          warning(kcontext, $account);
     end
