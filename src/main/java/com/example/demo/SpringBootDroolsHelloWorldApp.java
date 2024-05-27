@@ -16,6 +16,7 @@ public class SpringBootDroolsHelloWorldApp {
     private static final String RULES_DRL = "rules/rules.drl";
     private static final String ACCOUNTS_DRL = "rules/accounts.drl";
     private static final String CHECK_PHONE_NUMBER_DRL = "rules/checkCustomerPhoneNumber.drl";
+    private static final String VALIDATION_DRL = "rules/validation.drl";
     
     public static void main(String[] args) {
         SpringApplication.run(SpringBootDroolsHelloWorldApp.class, args);
@@ -29,7 +30,7 @@ public class SpringBootDroolsHelloWorldApp {
 
         KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
         kieFileSystem.write(ResourceFactory.newClassPathResource(RULES_DRL));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(CHECK_PHONE_NUMBER_DRL));
+        kieFileSystem.write(ResourceFactory.newClassPathResource(VALIDATION_DRL));
 //        kieFileSystem.write(ResourceFactory.newClassPathResource(accountsDrl));
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();

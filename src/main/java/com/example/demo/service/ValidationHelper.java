@@ -29,4 +29,17 @@ public class ValidationHelper {
           context));
    }
 
+   public static void warning(RuleContext kcontext,
+           Object... context) {
+          KieRuntime knowledgeRuntime = kcontext
+             .getKnowledgeRuntime();
+         ValidationReport validationReport = (ValidationReport)
+             knowledgeRuntime.getGlobal("validationReport");
+         ReportFactory reportFactory = (ReportFactory)
+             knowledgeRuntime.getGlobal("reportFactory");
+         validationReport.addMessage(reportFactory.createMessage(
+             Message.Type.WARNING, kcontext.getRule().getName(),
+             context));
+      }
+
 }

@@ -1,9 +1,10 @@
 package rules;
 
-import com.example.demo.runtime.rule.RuleContext;
+//import com.example.demo.runtime.rule.RuleContext;
 
 import com.example.demo.model.*;
 import com.example.demo.service.*;
+import com.example.demo.report.*;
 
 global ValidationReport validationReport;
 global ReportFactory reportFactory;
