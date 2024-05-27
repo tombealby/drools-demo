@@ -1,0 +1,13 @@
+package rules;
+
+import com.example.demo.runtime.rule.RuleContext;
+
+import com.example.demo.model.*;
+import com.example.demo.service.*;
+
+global ValidationReport validationReport;
+global ReportFactory reportFactory;
+global BankingInquiryService inquiryService;
+
+import function com.example.demo.service.ValidationHelper.error;
+import function com.example.demo.service.ValidationHelper.warning;
