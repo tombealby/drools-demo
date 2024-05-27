@@ -16,6 +16,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.io.ResourceFactory;
 
+import com.example.demo.model.Account;
 import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.report.Message;
@@ -41,7 +42,6 @@ public class ValidationTest {
         KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
         kieFileSystem.write(ResourceFactory.newClassPathResource(RULES_DRL));
         kieFileSystem.write(ResourceFactory.newClassPathResource(VALIDATION_DRL));
-//        kieFileSystem.write(ResourceFactory.newClassPathResource(accountsDrl));
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();
         KieModule kieModule = kieBuilder.getKieModule();
@@ -54,8 +54,8 @@ public class ValidationTest {
       ValidationReport validationReport = new ValidationReportImpl();
       final Customer customer = new Customer();
       customer.setPhoneNumber("123456789");
-      validateCustomer(customer, validationReport);
       assertNull(customer.getAddress());
+      validateCustomer(customer, validationReport);
       assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
 
       validationReport = new ValidationReportImpl();
@@ -72,13 +72,12 @@ public class ValidationTest {
 
      private void assertNotReportContains(Type type, String messageString,
              ValidationReport validationReport) {
-         System.out.println("************assertReportContains***************");
+         System.out.println("************assertNotReportContains***************");
          assertReportContent(type, messageString, validationReport, false);
      }
 
      private void assertReportContent(Type type, String messageString,
              ValidationReport validationReport, boolean isMessageExpected) {
-         System.out.println("************assertReportContent***************");
          Set<Message> messages = validationReport.getMessages();
          boolean isMessageInReport = false;
 
@@ -99,9 +98,33 @@ public class ValidationTest {
          }
      }
 
-     public void validateCustomer(Customer customer, ValidationReport validationReport) {
-         KieSession kieSession = kieContainer.newKieSession(); // kieContainer.newKieSession("rulesSession");
+     public void validateCustomer(final Customer customer, final ValidationReport validationReport) {
+         final KieSession kieSession = kieContainer.newKieSession();
          kieSession.insert(customer);
+         setGlobalsAndFire(validationReport, kieSession);
+     }
+
+     @Test
+     public void accountOwnerRequired() throws Exception {
+         ValidationReport validationReport = new ValidationReportImpl();
+         final Account account = new Account();
+         assertNull(account.getOwner());
+         validateAccount(account, validationReport);
+         assertReportContains(Message.Type.ERROR, "accountOwnerRequired", validationReport);
+
+         validationReport = new ValidationReportImpl();
+         account.setOwner(new Customer());
+         validateAccount(account, validationReport);
+         assertNotReportContains(Message.Type.ERROR, "accountOwnerRequired", validationReport);
+     }
+
+     public void validateAccount(final Account account, final ValidationReport validationReport) {
+         final KieSession kieSession = kieContainer.newKieSession();
+         kieSession.insert(account);
+         setGlobalsAndFire(validationReport, kieSession);
+     }
+
+     private void setGlobalsAndFire(final ValidationReport validationReport, final KieSession kieSession) {
          kieSession.setGlobal("validationReport", validationReport);
          kieSession.setGlobal("reportFactory", new ReportFactoryImpl());
          kieSession.setGlobal("inquiryService", new BankingInquiryService(kieContainer));
