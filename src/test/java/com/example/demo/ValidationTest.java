@@ -1,6 +1,10 @@
 package com.example.demo;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,11 +15,9 @@ import org.kie.api.builder.KieModule;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.io.ResourceFactory;
-import java.util.Set;
 
-import com.example.demo.model.Account;
-import com.example.demo.model.Customer;
 import com.example.demo.model.Address;
+import com.example.demo.model.Customer;
 import com.example.demo.report.Message;
 import com.example.demo.report.Message.Type;
 import com.example.demo.report.ReportFactory;
@@ -29,8 +31,6 @@ public class ValidationTest {
     static KieContainer kieContainer;
     static ReportFactory reportFactory;
     private static final String RULES_DRL = "rules/rules.drl";
-    private static final String ACCOUNTS_DRL = "rules/accounts.drl";
-    private static final String CHECK_PHONE_NUMBER_DRL = "rules/checkCustomerPhoneNumber.drl";
     private static final String VALIDATION_DRL = "rules/validation.drl";
 
     @BeforeAll
@@ -48,75 +48,67 @@ public class ValidationTest {
         kieContainer = kieServices.newKieContainer(kieModule.getReleaseId());
 
     }
-
-//    @Test
-//    public void test() {
-//        validate(new Customer(), new Account());
-//    }
     
     @Test
     public void addressRequired() throws Exception {
       ValidationReport validationReport = new ValidationReportImpl();
       Customer customer = new Customer();
-      validate(customer, new Account(), validationReport);
+      customer.setPhoneNumber("123456789");
+      validateCustomer(customer, validationReport);
       assertNull(customer.getAddress());
       assertReportContains(Message.Type.WARNING,
          "addressRequired", customer, validationReport);
 
+      validationReport = new ValidationReportImpl();
       customer.setAddress(new Address());
-      validate(customer, new Account(), validationReport);
+      validateCustomer(customer, validationReport);
       assertNotReportContains(Message.Type.WARNING,
          "addressRequired", customer, validationReport);
      }
 
-     private void assertReportContains(Type warning, String string, Customer customer,
+     private void assertReportContains(Type type, String messageString, Customer customer,
              ValidationReport validationReport) {
-//        ValidationReport report =
-//                reportFactory.createValidationReport();
-//           List<Command> commands = new ArrayList<Command>();
-//           commands.add(CommandFactory.newSetGlobal(
-//               "validationReport", report));
-//           commands.add(CommandFactory
-//               .newInsertElements(getFacts(customer)));
-//           session.execute(CommandFactory
-//               .newBatchExecution(commands));
          System.out.println("************assertReportContains***************");
-         Set<Message> messages = validationReport.getMessages();
-         for (Message m : messages) {
-             System.out.println("message type:" + m.getType());
-             System.out.println("message key:" + m.getMessageKey());
-             System.out.println("message ordered context:" + m.getContextOrdered());
-         }
-
-//           assertTrue("Report doesn't contain message [" + messageKey
-//               + "]", report.contains(messageKey));
-//           Message message = getMessage(report, messageKey);
-//           assertEquals(Arrays.asList(context),
-//               message.getContextOrdered());
-
+         assertReportContent(type, messageString, customer, validationReport, true);
      }
 
-     private void assertNotReportContains(Type warning, String string, Customer customer,
+     private void assertNotReportContains(Type type, String messageString, Customer customer,
              ValidationReport validationReport) {
-         System.out.println("************assertNotReportContains***************");
+         System.out.println("************assertReportContains***************");
+         assertReportContent(type, messageString, customer, validationReport, false);
+     }
+
+     private void assertReportContent(Type type, String messageString, Customer customer,
+             ValidationReport validationReport, boolean isMessageExpected) {
+         System.out.println("************assertReportContent***************");
          Set<Message> messages = validationReport.getMessages();
+         boolean isMessageInReport = false;
+
          for (Message m : messages) {
              System.out.println("message type:" + m.getType());
              System.out.println("message key:" + m.getMessageKey());
              System.out.println("message ordered context:" + m.getContextOrdered());
+             if (type == m.getType() && messageString.equals(m.getMessageKey())) {
+                 isMessageInReport = true;
+                 break;
+             }
          }
 
+         if (isMessageExpected) {
+             assertTrue(isMessageInReport);
+         } else {
+             assertFalse(isMessageInReport);
+         }
      }
 
-    public void validate(Customer customer, Account account, ValidationReport validationReport) {
-        KieSession kieSession = kieContainer.newKieSession(); //kieContainer.newKieSession("rulesSession");
-        kieSession.insert(customer);
-        kieSession.insert(account);
-        kieSession.setGlobal("validationReport", validationReport);
-        kieSession.setGlobal("reportFactory", new ReportFactoryImpl());
-        kieSession.setGlobal("inquiryService", new BankingInquiryService(kieContainer));
-        kieSession.fireAllRules();
-        kieSession.dispose();
-      }
+     public void validateCustomer(Customer customer, ValidationReport validationReport) {
+         KieSession kieSession = kieContainer.newKieSession(); // kieContainer.newKieSession("rulesSession");
+         kieSession.insert(customer);
+         kieSession.setGlobal("validationReport", validationReport);
+         kieSession.setGlobal("reportFactory", new ReportFactoryImpl());
+         kieSession.setGlobal("inquiryService", new BankingInquiryService(kieContainer));
+         kieSession.fireAllRules();
+         kieSession.dispose();
+     }
 
 }
