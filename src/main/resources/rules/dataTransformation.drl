@@ -1,0 +1,51 @@
+package rules;
+
+import java.util.*;
+
+import com.example.demo.service.LegacyBankService;
+import com.example.demo.report.ValidationReportImpl;
+import com.example.demo.report.ReportFactoryImpl;
+import com.example.demo.model.Address;
+import com.example.demo.model.Country;
+import com.example.demo.report.Message;
+
+global ValidationReportImpl validationReport;
+global ReportFactoryImpl reportFactory;
+global LegacyBankService legacyService;
+
+//global ValidationReport validationReport;
+//global ReportFactory reportFactory;
+//global LegacyBankService legacyService;
+
+rule findAllCustomers
+dialect "mvel"
+when
+	$customerMap : Map( )
+		from legacyService.findAllCustomers()
+then
+	$customerMap["_type_"] = "Customer"
+		insert( $customerMap )
+end
+rule findAddress
+dialect "mvel"
+   when
+      $customerMap : Map( this["_type_"] == "Customer" )
+       $addressMap : Map( )
+         from legacyService.findAddressByCustomerId(
+            $customerMap["customer_id"] )
+   then
+      $addressMap["_type_"] = "Address"
+       insert( $addressMap )
+end
+rule twoEqualAddressesDifferentInstance
+when
+	$addressMap1 : Map( this["_type_"] == "Address" )
+	$addressMap2 : Map( this["_type_"] == "Address",
+		eval( $addressMap1 != $addressMap2 ),
+			this == $addressMap1 )
+then
+	retract( $addressMap2 );
+	validationReport.addMessage(
+		reportFactory.createMessage(Message.Type.WARNING,
+		kcontext.getRule().getName(), $addressMap2));
+end
