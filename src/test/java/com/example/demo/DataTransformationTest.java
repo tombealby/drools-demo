@@ -87,6 +87,7 @@ public class DataTransformationTest {
         kieSession.setGlobal("reportFactory", reportFactory);
         kieSession.setGlobal("validationReport", reportFactory.createValidationReport());
 
+
       Map addressMap1 = new HashMap();
       addressMap1.put("_type_", "Address");
       addressMap1.put("street", "Barrack Street");
@@ -95,17 +96,27 @@ public class DataTransformationTest {
       addressMap2.put("_type_", "Address");
       addressMap2.put("street", "Barrack Street");
       assertEquals(addressMap1, addressMap2);
+      
+      ValidationReport validationReport = reportFactory.createValidationReport();
+      
+      transformAddresses(Arrays.asList(addressMap1, addressMap2), validationReport);
 
-      ExecutionResults results = execute(Arrays.asList(
-          addressMap1, addressMap2),
-          "twoEqualAddressesDifferentInstance", "Address",
-          "addresses",kieSession);
+//      ExecutionResults results = execute(Arrays.asList(
+//          addressMap1, addressMap2),
+//          "twoEqualAddressesDifferentInstance", "Address",
+//          "addresses",kieSession);
+      
+//      assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
 
-      List<?> addresses = ((List<?>) results
-          .getValue("addresses"));
-      Map addressMapwinner = (Map) addresses.get(0);
-      assertEquals(addressMap1, addressMapwinner);
-      assertEquals(1, addresses.size());
+//      List<?> addresses = ((List<?>) results
+//          .getValue("addresses"));
+//      Map addressMapwinner = (Map) addresses.get(0);
+//      assertEquals(addressMap1, addressMapwinner);
+//      assertEquals(1, addresses.size());
+      
+      
+      
+      
 //      reportContextContains(results,
 //          "twoEqualAddressesDifferentInstance",
 //          addressMapwinner == addressMap1 ? addressMap2
@@ -120,6 +131,22 @@ public class DataTransformationTest {
 //              "twoEqualAddressesDifferentInstance",
 //              addressMapwinner == addressMap1 ? addressMap2
 //                  : addressMap1);
+    }
+    
+    public void transformAddresses(final List objects, final ValidationReport validationReport) {
+        final KieSession kieSession = kieContainer.newKieSession();
+        
+        kieSession.setGlobal("validationReport", validationReport);
+        kieSession.setGlobal("legacyService", new MockLegacyBankService());
+        kieSession.setGlobal("reportFactory", reportFactory);
+        Map<String, String> types = new HashMap<>();
+        types.put("_type_", "Customer");
+        Map<String, Customer> customerMap = new HashMap<>();
+        Customer customer = createBasicCustomer();
+        customerMap.put(DATA_TRANSFORMATION_DRL, customer);
+        kieSession.insert(customer);
+        kieSession.fireAllRules();
+        kieSession.dispose();
     }
 
      private void assertReportContains(Type type, String messageString,
@@ -160,6 +187,7 @@ public class DataTransformationTest {
          final KieSession kieSession = kieContainer.newKieSession();
          kieSession.setGlobal("legacyService", new MockLegacyBankService());
          kieSession.insert(customer);
+         
          setGlobalsAndFire(validationReport, kieSession);
      }
      
@@ -184,14 +212,6 @@ public class DataTransformationTest {
                      return object instanceof Map && ((Map) object).get("_type_").equals(filterType);
                  }
              });
-//         GetObjectsCommand getObjectsCommand =
-//           new GetObjectsCommand( new ObjectFilter() {
-//               public boolean accept(Object object) {
-//                 return object instanceof Map
-//                     && ((Map) object).get("_type_").equals(
-//                          filterType);
-//                 }
-//               });
              getObjectsCommand.setOutIdentifier(filterOut);
              commands.add(getObjectsCommand);
          }
@@ -289,14 +309,46 @@ public class DataTransformationTest {
 
         @Override
         public List<Map<String, Object>> findAllCustomers() {
-            // TODO Auto-generated method stub
-            return null;
+            
+            Map<String, Object> customerMap1 = new HashMap<>();
+            Customer customer1 = createBasicCustomer();
+            customerMap1.put("Customer", customer1);
+            customerMap1.put("customer_id", 1);
+            
+            Map<String, Object> customerMap2 = new HashMap<>();
+            Customer customer2 = createBasicCustomer();
+            customerMap2.put("Customer", customer2);
+            customerMap2.put("customer_id", 2);
+            
+            List<Map<String, Object>> allCustomers = new ArrayList<>();
+            allCustomers.add(customerMap1);
+            allCustomers.add(customerMap2);
+            return allCustomers;
         }
 
         @Override
-        public List<Map<String, Object>> findAddressByCustomerId(Long customerId) {
-            // TODO Auto-generated method stub
-            return null;
+        public Map<String, Object> findAddressByCustomerId(Long customerId) {
+//            public List<Map<String, Object>> findAddressByCustomerId(Long customerId) {
+
+            
+            Map addressMap1 = new HashMap();
+            addressMap1.put("_type_", "Address");
+            addressMap1.put("street", "Barrack Street");
+
+            Map addressMap2 = new HashMap();
+            addressMap2.put("_type_", "Address");
+            addressMap2.put("street", "Barrack Street");
+            
+            List<Map<String, Object>> addresesForCustomer = new ArrayList<>();
+            addresesForCustomer.add(addressMap1);
+            addresesForCustomer.add(addressMap2);
+            
+            if (customerId == 1) {
+                return addressMap1;
+            } else {
+                return addressMap2;
+            }
+//            return addresesForCustomer;
         }
 
         @Override

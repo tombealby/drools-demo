@@ -9,8 +9,11 @@ public interface LegacyBankService {
 
     // keys for map are object property names
     // (for example, addressLine1) and the values are the actual properties
-    List<Map<String, Object>> findAddressByCustomerId(
-         Long customerId);
+//    List<Map<String, Object>> findAddressByCustomerId(
+//         Long customerId);
+
+    Map<String, Object> findAddressByCustomerId(
+            Long customerId);
 
     // keys for map are object property names
     // (for example, addressLine1) and the values are the actual properties

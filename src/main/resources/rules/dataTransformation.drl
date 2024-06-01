@@ -25,6 +25,7 @@ when
 then
 	$customerMap["_type_"] = "Customer"
 		insert( $customerMap )
+		System.out.println ("findAllCustomers consequence inserted  " + $customerMap);
 end
 rule findAddress
 dialect "mvel"
@@ -34,18 +35,28 @@ dialect "mvel"
          from legacyService.findAddressByCustomerId(
             $customerMap["customer_id"] )
    then
+
       $addressMap["_type_"] = "Address"
        insert( $addressMap )
+       System.out.println ("findAddress consequence inserted  " + $addressMap);
 end
 rule twoEqualAddressesDifferentInstance
 when
+
 	$addressMap1 : Map( this["_type_"] == "Address" )
-	$addressMap2 : Map( this["_type_"] == "Address",
-		eval( $addressMap1 != $addressMap2 ),
-			this == $addressMap1 )
+
+	$addressMap2 : Map( this["_type_"] == "Address")
+
+	eval( $addressMap1 != $addressMap2 )
+
+//	$addressMap2 : Map( this["_type_"] == "Address",
+//		eval( $addressMap1 != $addressMap2 ),
+//			this == $addressMap1 )
 then
+	System.out.println ("twoEqualAddressesDifferentInstance consequence ");
 	retract( $addressMap2 );
 	validationReport.addMessage(
 		reportFactory.createMessage(Message.Type.WARNING,
 		kcontext.getRule().getName(), $addressMap2));
+		System.out.println ("twoEqualAddressesDifferentInstance consequence retracting" + $addressMap2);
 end
