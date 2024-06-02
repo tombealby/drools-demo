@@ -47,6 +47,7 @@ import com.example.demo.service.LegacyBankService;
 public class DataTransformationTest {
 
     static KieContainer kieContainer;
+    static KieSession kieSession;
     static ReportFactoryImpl reportFactory = new ReportFactoryImpl();
     private static final String DATA_TRANSFORMATION_DRL = "rules/dataTransformation.drl";
 
@@ -62,14 +63,16 @@ public class DataTransformationTest {
         KieModule kieModule = kieBuilder.getKieModule();
         kieContainer = kieServices.newKieContainer(kieModule.getReleaseId());
 
+        kieSession = kieContainer.newKieSession();
+        kieSession.setGlobal("legacyService", new DataTransformationTest().new MockLegacyBankService());
+        kieSession.setGlobal("reportFactory", reportFactory);
+        kieSession.setGlobal("validationReport", reportFactory.createValidationReport());
+
     }
 
     @Test
     public void twoEqualAddressesDifferentInstance() throws Exception {
-        final KieSession kieSession = kieContainer.newKieSession();
-        kieSession.setGlobal("legacyService", new MockLegacyBankService());
-        kieSession.setGlobal("reportFactory", reportFactory);
-        kieSession.setGlobal("validationReport", reportFactory.createValidationReport());
+
 
         final Map<String, Object> addressMap1 = new HashMap<>();
         addressMap1.put("_type_", "Address");
@@ -81,7 +84,7 @@ public class DataTransformationTest {
         assertEquals(addressMap1, addressMap2);
 
         final ExecutionResults results = execute(Arrays.asList(addressMap1, addressMap2),
-                "twoEqualAddressesDifferentInstance", "Address", "addresses", kieSession);
+                "twoEqualAddressesDifferentInstance", "Address", "addresses");
 
         final Iterator<?> addressIterator = ((List<?>) results.getValue("addresses")).iterator();
         final Map<String, Object> addressMapwinner = (Map<String, Object>) addressIterator.next();
@@ -102,6 +105,18 @@ public class DataTransformationTest {
 
     }
     
+    @Test
+    public void addressNormalizationUSA() throws Exception {
+      Map addressMap = new HashMap();
+      addressMap.put("_type_", "Address");
+      addressMap.put("country", "U.S.A");
+
+      execute(Arrays.asList(addressMap),
+          "addressNormalizationUSA", null, null);
+
+//      assertEquals(Address.Country.USA, addressMap
+//          .get("country"));
+    }
     
     /**
      * asserts that the report contains one message with expected context (input parameter)
@@ -177,8 +192,7 @@ public class DataTransformationTest {
       * creates multiple commands, calls session.execute and
       * returns results back
       */
-     protected ExecutionResults execute(List objects, String ruleName, final String filterType, String filterOut,
-             KieSession kieSession) {
+     protected ExecutionResults execute(List objects, String ruleName, final String filterType, String filterOut) {
          ValidationReport validationReport = reportFactory.createValidationReport();
          List<Command<?>> commands = new ArrayList<Command<?>>();
          commands.add(CommandFactory.newSetGlobal("validationReport", validationReport, true));
