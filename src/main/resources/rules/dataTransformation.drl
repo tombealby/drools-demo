@@ -59,3 +59,13 @@ then
 		kcontext.getRule().getName(), $addressMap2));
 		System.out.println ("twoEqualAddressesDifferentInstance consequence retracting" + $addressMap2);
 end
+rule addressNormalizationUSA
+when
+	$addressMap : Map( this["_type_"] == "Address",
+	this["country"] in ("US", "U.S.", "USA", "U.S.A"))
+then
+    System.out.println ("addressNormalizationUSA consequence");
+	modify( $addressMap ) {
+		put("country", Country.USA)
+	}
+end

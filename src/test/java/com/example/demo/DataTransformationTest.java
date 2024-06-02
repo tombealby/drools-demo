@@ -35,6 +35,7 @@ import org.kie.internal.io.ResourceFactory;
 
 import com.example.demo.model.Account;
 import com.example.demo.model.Address;
+import com.example.demo.model.Country;
 import com.example.demo.model.Customer;
 import com.example.demo.report.Message;
 import com.example.demo.report.Message.Type;
@@ -107,15 +108,13 @@ public class DataTransformationTest {
     
     @Test
     public void addressNormalizationUSA() throws Exception {
-      Map addressMap = new HashMap();
-      addressMap.put("_type_", "Address");
-      addressMap.put("country", "U.S.A");
+        Map<String, String> addressMap = new HashMap<>();
+        addressMap.put("_type_", "Address");
+        addressMap.put("country", "U.S.A");
 
-      execute(Arrays.asList(addressMap),
-          "addressNormalizationUSA", null, null);
+        execute(Arrays.asList(addressMap), "addressNormalizationUSA", null, null);
 
-//      assertEquals(Address.Country.USA, addressMap
-//          .get("country"));
+        assertEquals(Country.USA, addressMap.get("country"));
     }
     
     /**
