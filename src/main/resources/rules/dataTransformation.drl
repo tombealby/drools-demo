@@ -53,7 +53,6 @@ when
 //		eval( $addressMap1 != $addressMap2 ),
 //			this == $addressMap1 )
 then
-	System.out.println ("twoEqualAddressesDifferentInstance consequence ");
 	retract( $addressMap2 );
 	validationReport.addMessage(
 		reportFactory.createMessage(Message.Type.WARNING,

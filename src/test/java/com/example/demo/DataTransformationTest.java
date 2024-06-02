@@ -63,22 +63,6 @@ public class DataTransformationTest {
 
     }
 
-//    @Test
-//    public void addressRequired() throws Exception {
-//      ValidationReport validationReport = new ValidationReportImpl();
-//      final Customer customer = new Customer();
-//      customer.setPhoneNumber("123456789");
-//      customer.setDateOfBirth(parseDate("1954-02-14"));
-//      assertNull(customer.getAddress());
-//      executeDataTransform(customer, validationReport);
-//      assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
-//
-//      validationReport = new ValidationReportImpl();
-//      customer.setAddress(new Address());
-//      executeDataTransform(customer, validationReport);
-//      assertNotReportContains(Message.Type.WARNING, "addressRequired", validationReport);
-//     }
-
     @Test
     public void twoEqualAddressesDifferentInstance()
         throws Exception {
@@ -87,19 +71,18 @@ public class DataTransformationTest {
         kieSession.setGlobal("reportFactory", reportFactory);
         kieSession.setGlobal("validationReport", reportFactory.createValidationReport());
 
-
-      Map addressMap1 = new HashMap();
-      addressMap1.put("_type_", "Address");
-      addressMap1.put("street", "Barrack Street");
-
-      Map addressMap2 = new HashMap();
-      addressMap2.put("_type_", "Address");
-      addressMap2.put("street", "Barrack Street");
-      assertEquals(addressMap1, addressMap2);
+//      Map addressMap1 = new HashMap();
+//      addressMap1.put("_type_", "Address");
+//      addressMap1.put("street", "Barrack Street");
+//
+//      Map addressMap2 = new HashMap();
+//      addressMap2.put("_type_", "Address");
+//      addressMap2.put("street", "Barrack Street");
+//      assertEquals(addressMap1, addressMap2);
       
       ValidationReport validationReport = reportFactory.createValidationReport();
       
-      transformAddresses(Arrays.asList(addressMap1, addressMap2), validationReport);
+      transformAddresses(validationReport);
 
 //      ExecutionResults results = execute(Arrays.asList(
 //          addressMap1, addressMap2),
@@ -133,7 +116,7 @@ public class DataTransformationTest {
 //                  : addressMap1);
     }
     
-    public void transformAddresses(final List objects, final ValidationReport validationReport) {
+    public void transformAddresses(final ValidationReport validationReport) {
         final KieSession kieSession = kieContainer.newKieSession();
         
         kieSession.setGlobal("validationReport", validationReport);
@@ -219,20 +202,6 @@ public class DataTransformationTest {
          return results;
      }
 
-//     @Test
-//     public void accountOwnerRequired() throws Exception {
-//         ValidationReport validationReport = new ValidationReportImpl();
-//         final Account account = new Account();
-//         assertNull(account.getOwner());
-//         validateAccount(account, validationReport);
-//         assertReportContains(Message.Type.ERROR, "accountOwnerRequired", validationReport);
-//
-//         validationReport = new ValidationReportImpl();
-//         account.setOwner(new Customer());
-//         validateAccount(account, validationReport);
-//         assertNotReportContains(Message.Type.ERROR, "accountOwnerRequired", validationReport);
-//     }
-
      public void validateAccount(final Account account, final ValidationReport validationReport) {
          final KieSession kieSession = kieContainer.newKieSession();
          kieSession.insert(account);
@@ -247,55 +216,12 @@ public class DataTransformationTest {
          kieSession.dispose();
      }
 
-//     @Test
-//     public void accountBalanceAtLeast() throws Exception {
-//         ValidationReport validationReport = new ValidationReportImpl();
-//         final Customer customer = createBasicCustomer();
-//         customer.setDateOfBirth(parseDate("1954-02-14"));
-//         final Account account = new Account();
-//         account.setOwner(new Customer());
-//         account.setBalance(0);
-//         customer.getAccounts().add(account);
-//         executeDataTransform(customer, validationReport);
-//         assertReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
-//
-//         validationReport = new ValidationReportImpl();
-//         account.setBalance(54);
-//         executeDataTransform(customer, validationReport);
-//         assertReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
-//
-//         validationReport = new ValidationReportImpl();
-//         account.setBalance(122);
-//         executeDataTransform(customer, validationReport);
-//         assertNotReportContains(Message.Type.WARNING, "accountBalanceAtLeast", validationReport);
-//     }
-
     private Customer createBasicCustomer() {
         final Customer customer = new Customer();
          customer.setPhoneNumber("123456789");
          customer.setAddress(new Address());
         return customer;
     }
-
-//    @Test
-//    public void studentAccountCustomerAgeLessThan() throws Exception {
-//        ValidationReport validationReport = new ValidationReportImpl();
-//
-//        final Customer customer = createBasicCustomer();
-//        customer.setDateOfBirth(parseDate("1954-02-14"));
-//        final Account account = new Account();
-////         account.setOwner(customer);
-//        account.setBalance(220);
-//        account.setType(Account.Type.STUDENT);
-//        customer.getAccounts().add(account);
-//        executeDataTransform(customer, validationReport);
-//        assertReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
-//
-//        customer.setDateOfBirth(parseDate("2010-02-14"));
-//        validationReport = new ValidationReportImpl();
-//        executeDataTransform(customer, validationReport);
-//        assertNotReportContains(Message.Type.ERROR, "studentAccountCustomerAgeLessThan", validationReport);
-//    }
      
     public static Date parseDate(String date) {
         try {
@@ -328,14 +254,12 @@ public class DataTransformationTest {
 
         @Override
         public Map<String, Object> findAddressByCustomerId(Long customerId) {
-//            public List<Map<String, Object>> findAddressByCustomerId(Long customerId) {
-
             
-            Map addressMap1 = new HashMap();
+            Map<String, Object> addressMap1 = new HashMap<>();
             addressMap1.put("_type_", "Address");
             addressMap1.put("street", "Barrack Street");
 
-            Map addressMap2 = new HashMap();
+            Map<String, Object> addressMap2 = new HashMap<>();
             addressMap2.put("_type_", "Address");
             addressMap2.put("street", "Barrack Street");
             
@@ -348,7 +272,6 @@ public class DataTransformationTest {
             } else {
                 return addressMap2;
             }
-//            return addresesForCustomer;
         }
 
         @Override
