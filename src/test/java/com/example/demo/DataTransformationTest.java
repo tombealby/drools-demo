@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 
 import org.drools.commands.runtime.rule.FireAllRulesCommand;
 import org.drools.commands.runtime.rule.GetObjectsCommand;
@@ -64,58 +65,56 @@ public class DataTransformationTest {
     }
 
     @Test
-    public void twoEqualAddressesDifferentInstance()
-        throws Exception {
+    public void twoEqualAddressesDifferentInstance() throws Exception {
         final KieSession kieSession = kieContainer.newKieSession();
         kieSession.setGlobal("legacyService", new MockLegacyBankService());
         kieSession.setGlobal("reportFactory", reportFactory);
         kieSession.setGlobal("validationReport", reportFactory.createValidationReport());
 
-//      Map addressMap1 = new HashMap();
-//      addressMap1.put("_type_", "Address");
-//      addressMap1.put("street", "Barrack Street");
-//
-//      Map addressMap2 = new HashMap();
-//      addressMap2.put("_type_", "Address");
-//      addressMap2.put("street", "Barrack Street");
-//      assertEquals(addressMap1, addressMap2);
-      
-      ValidationReport validationReport = reportFactory.createValidationReport();
-      
-      transformAddresses(validationReport);
+        final Map<String, Object> addressMap1 = new HashMap<>();
+        addressMap1.put("_type_", "Address");
+        addressMap1.put("street", "Barrack Street");
 
-//      ExecutionResults results = execute(Arrays.asList(
-//          addressMap1, addressMap2),
-//          "twoEqualAddressesDifferentInstance", "Address",
-//          "addresses",kieSession);
-      
-//      assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
+        final Map<String, Object> addressMap2 = new HashMap<>();
+        addressMap2.put("_type_", "Address");
+        addressMap2.put("street", "Barrack Street");
+        assertEquals(addressMap1, addressMap2);
 
+        final ExecutionResults results = execute(Arrays.asList(addressMap1, addressMap2),
+                "twoEqualAddressesDifferentInstance", "Address", "addresses", kieSession);
+
+        final Iterator<?> addressIterator = ((List<?>) results.getValue("addresses")).iterator();
+        final Map<String, Object> addressMapwinner = (Map<String, Object>) addressIterator.next();
+        assertEquals(addressMap1, addressMapwinner);
+        assertFalse(addressIterator.hasNext());
+        reportContextContains(results, "twoEqualAddressesDifferentInstance",
+                addressMapwinner == addressMap1 ? addressMap2 : addressMap1);
+
+// first got this working with the following code:        
+//final ValidationReport validationReport = reportFactory.createValidationReport();
+//    transformAddresses(validationReport);
+//  assertReportContains(Message.Type.WARNING, "addressRequired", validationReport);
 //      List<?> addresses = ((List<?>) results
 //          .getValue("addresses"));
 //      Map addressMapwinner = (Map) addresses.get(0);
 //      assertEquals(addressMap1, addressMapwinner);
 //      assertEquals(1, addresses.size());
-      
-      
-      
-      
-//      reportContextContains(results,
-//          "twoEqualAddressesDifferentInstance",
-//          addressMapwinner == addressMap1 ? addressMap2
-//              : addressMap1);
-      
-//      Iterator<?> addressIterator = ((List<?>) results
-//              .getValue("addresses")).iterator();
-//          Map addressMapwinner = (Map) addressIterator.next();
-//          assertEquals(addressMap1, addressMapwinner);
-//          assertFalse(addressIterator.hasNext());
-//          reportContextContains(results,
-//              "twoEqualAddressesDifferentInstance",
-//              addressMapwinner == addressMap1 ? addressMap2
-//                  : addressMap1);
+
     }
     
+    
+    /**
+     * asserts that the report contains one message with expected context (input parameter)
+     */
+    void reportContextContains(ExecutionResults results, String messgeKey, Object object) {
+        final ValidationReport validationReport = (ValidationReport) results.getValue("validationReport");
+        assertEquals(1, validationReport.getMessages().size());
+        final Message message = validationReport.getMessages().iterator().next();
+        final List<Object> messageContext = message.getContextOrdered();
+        assertEquals(1, messageContext.size());
+        assertEquals(object, messageContext.iterator().next());
+    }
+
     public void transformAddresses(final ValidationReport validationReport) {
         final KieSession kieSession = kieContainer.newKieSession();
         
