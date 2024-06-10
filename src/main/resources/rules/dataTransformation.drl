@@ -69,3 +69,15 @@ then
 		put("country", Country.USA)
 	}
 end
+rule unknownCountry
+salience -10 //should fire after address normalizations
+when
+	$addressMap : Map( this["_type_"] == "Address",
+		eval(!($addressMap.get("country") instanceof
+		Country)))
+then
+	System.out.println ("unknownCountry consequence");
+	validationReport.addMessage(
+		reportFactory.createMessage(Message.Type.ERROR,
+		kcontext.getRule().getName(), $addressMap));
+end

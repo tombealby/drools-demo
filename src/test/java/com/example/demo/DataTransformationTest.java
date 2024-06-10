@@ -142,6 +142,31 @@ public class DataTransformationTest {
 //        kieSession.setGlobal("legacyService", new MockLegacyBankService());
 //    }
     
+    @Test
+    public void unknownCountry() throws Exception {
+        Map<String, Object> addressMap = new HashMap<>();
+        addressMap.put("_type_", "Address");
+        addressMap.put("country", "no country");
+
+        ExecutionResults results = execute(Arrays.asList(addressMap), "unknownCountry", null, null,
+                new MockLegacyBankService());
+
+        reportContextContains(results, "unknownCountry", addressMap);
+    }
+
+    @Test
+    public void knownCountry() throws Exception {
+        Map<String, Object> addressMap = new HashMap<>();
+        addressMap.put("_type_", "Address");
+        addressMap.put("country", Country.FRANCE);
+
+        ExecutionResults results = execute(Arrays.asList(addressMap), "unknownCountry", null, null,
+                new MockLegacyBankService());
+
+        final ValidationReport validationReport = (ValidationReport) results.getValue("validationReport");
+        assertEquals(0, validationReport.getMessages().size());
+    }
+
     /**
      * asserts that the report contains one message with expected context (input parameter)
      */
