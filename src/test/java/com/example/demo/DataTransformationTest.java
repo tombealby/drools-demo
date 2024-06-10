@@ -2,7 +2,6 @@ package com.example.demo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -12,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 
 import org.drools.commands.runtime.rule.FireAllRulesCommand;
 import org.drools.commands.runtime.rule.GetObjectsCommand;
@@ -42,12 +41,9 @@ import com.example.demo.report.Message;
 import com.example.demo.report.Message.Type;
 import com.example.demo.report.ReportFactoryImpl;
 import com.example.demo.report.ValidationReport;
-import com.example.demo.report.ValidationReportImpl;
 import com.example.demo.service.BankingInquiryService;
-import com.example.demo.service.CurrencyConverterImpl;
 import com.example.demo.service.LegacyBankService;
 import com.example.demo.service.MockLegacyBankService;
-import com.example.demo.service.StaticMockLegacyBankService;
 
 public class DataTransformationTest {
 
@@ -264,7 +260,6 @@ public class DataTransformationTest {
          commands.add(CommandFactory.newSetGlobal("validationReport", validationReport, true));
          commands.add(CommandFactory.newSetGlobal("legacyService", legacyService, true));
          commands.add(CommandFactory.newSetGlobal("reportFactory", reportFactory, true));
-         commands.add(CommandFactory.newSetGlobal("currencyConverter", new CurrencyConverterImpl(), true));
          commands.add(CommandFactory.newInsertElements(objects));
          commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter(ruleName)));
          if (filterType != null && filterOut != null) {

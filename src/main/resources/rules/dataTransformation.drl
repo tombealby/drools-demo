@@ -9,12 +9,11 @@ import com.example.demo.report.ReportFactoryImpl;
 import com.example.demo.model.Address;
 import com.example.demo.model.Country;
 import com.example.demo.report.Message;
-import com.example.demo.service.CurrencyConverter;
+import com.example.demo.service.CurrencyConverterUtils;
 
 global ValidationReportImpl validationReport;
 global ReportFactoryImpl reportFactory;
 global LegacyBankService legacyService;
-global CurrencyConverter currencyConverter;
 
 //global ValidationReport validationReport;
 //global ReportFactory reportFactory;
@@ -90,7 +89,7 @@ when
 	$accountMap : Map( this["_type_"] == "Account",
 		this["currency"] != null && != "EUR" )
 		$conversionAmount : String() from
-		currencyConverter.getConversionToEurFrom($accountMap["currency"])
+		CurrencyConverterUtils.getConversionToEurFrom($accountMap["currency"])
 then
 	modify($accountMap) {
 		put("currency", "EUR"),

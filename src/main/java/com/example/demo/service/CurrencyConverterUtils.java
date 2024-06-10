@@ -1,9 +1,8 @@
 package com.example.demo.service;
 
-public class CurrencyConverterImpl implements CurrencyConverter {
+public class CurrencyConverterUtils {
 
-    @Override
-    public String getConversionToEurFrom(Object currencyFrom) {
+    public static String getConversionToEurFrom(Object currencyFrom) {
         String conversion = null;
         if ("USD".equals(currencyFrom)) {
             conversion = "0.670";
