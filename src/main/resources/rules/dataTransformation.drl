@@ -1,6 +1,7 @@
 package rules;
 
 import java.util.*;
+import java.math.BigDecimal;
 
 import com.example.demo.service.LegacyBankService;
 import com.example.demo.report.ValidationReportImpl;
@@ -8,10 +9,12 @@ import com.example.demo.report.ReportFactoryImpl;
 import com.example.demo.model.Address;
 import com.example.demo.model.Country;
 import com.example.demo.report.Message;
+import com.example.demo.service.CurrencyConverter;
 
 global ValidationReportImpl validationReport;
 global ReportFactoryImpl reportFactory;
 global LegacyBankService legacyService;
+global CurrencyConverter currencyConverter;
 
 //global ValidationReport validationReport;
 //global ReportFactory reportFactory;
@@ -80,4 +83,19 @@ then
 	validationReport.addMessage(
 		reportFactory.createMessage(Message.Type.ERROR,
 		kcontext.getRule().getName(), $addressMap));
+end
+rule currencyConversionToEUR
+dialect "mvel"
+when
+	$accountMap : Map( this["_type_"] == "Account",
+		this["currency"] != null && != "EUR" )
+		$conversionAmount : String() from
+		currencyConverter.getConversionToEurFrom($accountMap["currency"])
+then
+	modify($accountMap) {
+		put("currency", "EUR"),
+		put("balance", new BigDecimal(
+			$conversionAmount).multiply(new BigDecimal(
+			(String)$accountMap.get("balance"))))
+	}
 end

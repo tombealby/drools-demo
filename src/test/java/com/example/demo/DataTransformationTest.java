@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import com.example.demo.report.ReportFactoryImpl;
 import com.example.demo.report.ValidationReport;
 import com.example.demo.report.ValidationReportImpl;
 import com.example.demo.service.BankingInquiryService;
+import com.example.demo.service.CurrencyConverterImpl;
 import com.example.demo.service.LegacyBankService;
 import com.example.demo.service.MockLegacyBankService;
 import com.example.demo.service.StaticMockLegacyBankService;
@@ -144,6 +146,7 @@ public class DataTransformationTest {
     
     @Test
     public void unknownCountry() throws Exception {
+
         Map<String, Object> addressMap = new HashMap<>();
         addressMap.put("_type_", "Address");
         addressMap.put("country", "no country");
@@ -165,6 +168,19 @@ public class DataTransformationTest {
 
         final ValidationReport validationReport = (ValidationReport) results.getValue("validationReport");
         assertEquals(0, validationReport.getMessages().size());
+    }
+
+    @Test
+    public void currencyConversionToEUR() throws Exception {
+        Map<String, Object> accountMap = new HashMap<>();
+        accountMap.put("_type_", "Account");
+        accountMap.put("currency", "USD");
+        accountMap.put("balance", "1000");
+
+        execute(Arrays.asList(accountMap), "currencyConversionToEUR", null, null, new MockLegacyBankService());
+
+        assertEquals("EUR", accountMap.get("currency"));
+        assertEquals(new BigDecimal("670.000"), accountMap.get("balance"));
     }
 
     /**
@@ -248,6 +264,7 @@ public class DataTransformationTest {
          commands.add(CommandFactory.newSetGlobal("validationReport", validationReport, true));
          commands.add(CommandFactory.newSetGlobal("legacyService", legacyService, true));
          commands.add(CommandFactory.newSetGlobal("reportFactory", reportFactory, true));
+         commands.add(CommandFactory.newSetGlobal("currencyConverter", new CurrencyConverterImpl(), true));
          commands.add(CommandFactory.newInsertElements(objects));
          commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter(ruleName)));
          if (filterType != null && filterOut != null) {
