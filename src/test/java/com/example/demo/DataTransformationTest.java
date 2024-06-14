@@ -39,6 +39,7 @@ import com.example.demo.model.Country;
 import com.example.demo.model.Customer;
 import com.example.demo.report.Message;
 import com.example.demo.report.Message.Type;
+import com.example.demo.report.MessageImpl;
 import com.example.demo.report.ReportFactoryImpl;
 import com.example.demo.report.ValidationReport;
 import com.example.demo.service.BankingInquiryService;
@@ -177,6 +178,24 @@ public class DataTransformationTest {
 
         assertEquals("EUR", accountMap.get("currency"));
         assertEquals(new BigDecimal("670.000"), accountMap.get("balance"));
+    }
+
+    @Test
+    public void unknownCurrency() throws Exception {
+        Map<String, Object> accountMap = new HashMap<>();
+        accountMap.put("_type_", "Account");
+        accountMap.put("currency", "AUD");
+        accountMap.put("balance", "1000");
+
+        ExecutionResults results = execute(Arrays.asList(accountMap), "unknownCurrency", null, null, new MockLegacyBankService());
+
+        final ValidationReport validationReport = (ValidationReport) results.getValue("validationReport");
+        assertEquals(1, validationReport.getMessages().size());
+        MessageImpl message = (MessageImpl) validationReport.getMessages().iterator().next();
+        assertEquals("unknownCurrency", message.getMessageKey());
+        assertEquals(Message.Type.ERROR, message.getType());
+        assertEquals(accountMap, message.getContextOrdered().get(0));
+        System.out.println(validationReport.getMessages().iterator().next().getContextOrdered().get(0));
     }
 
     /**
