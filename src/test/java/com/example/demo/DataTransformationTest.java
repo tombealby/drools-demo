@@ -198,6 +198,26 @@ public class DataTransformationTest {
         System.out.println(validationReport.getMessages().iterator().next().getContextOrdered().get(0));
     }
 
+    @Test
+    public void reduceLegacyAccounts() throws Exception {
+        final Map<String, Object> accountMap1 = new HashMap<>();
+        accountMap1.put("_type_", "Account");
+        accountMap1.put("customer_id", "00123");
+        accountMap1.put("balance", new BigDecimal("100.00"));
+
+        final Map<String, Object> accountMap2 = new HashMap<>();
+        accountMap2.put("_type_", "Account");
+        accountMap2.put("customer_id", "00123");
+        accountMap2.put("balance", new BigDecimal("300.00"));
+
+        final ExecutionResults results = execute(Arrays.asList(accountMap1, accountMap2), "reduceLegacyAccounts",
+                "Account", "accounts", new MockLegacyBankService());
+        final Iterator<?> accountIterator = ((List<?>) results.getValue("accounts")).iterator();
+        final Map<String, Object> accountMap = (Map) accountIterator.next();
+        assertEquals(new BigDecimal("400.00"), accountMap.get("balance"));
+        assertFalse(accountIterator.hasNext());
+    }
+
     /**
      * asserts that the report contains one message with expected context (input parameter)
      */
