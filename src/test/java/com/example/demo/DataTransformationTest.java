@@ -204,18 +204,37 @@ public class DataTransformationTest {
         accountMap1.put("_type_", "Account");
         accountMap1.put("customer_id", "00123");
         accountMap1.put("balance", new BigDecimal("100.00"));
+        accountMap1.put("currency", "USD");
 
         final Map<String, Object> accountMap2 = new HashMap<>();
         accountMap2.put("_type_", "Account");
         accountMap2.put("customer_id", "00123");
         accountMap2.put("balance", new BigDecimal("300.00"));
+        accountMap2.put("currency", "USD");
 
-        final ExecutionResults results = execute(Arrays.asList(accountMap1, accountMap2), "reduceLegacyAccounts",
+        final Map<String, Object> accountMap3 = new HashMap<>();
+        accountMap3.put("_type_", "Account");
+        accountMap3.put("customer_id", "00123");
+        accountMap3.put("balance", new BigDecimal("500.00"));
+        accountMap3.put("currency", "GBP");
+
+        final ExecutionResults results = execute(Arrays.asList(accountMap1, accountMap2, accountMap3), "reduceLegacyAccounts",
                 "Account", "accounts", new MockLegacyBankService());
         final Iterator<?> accountIterator = ((List<?>) results.getValue("accounts")).iterator();
-        final Map<String, Object> accountMap = (Map) accountIterator.next();
-        assertEquals(new BigDecimal("400.00"), accountMap.get("balance"));
+        Map<String, Object> accountMap = (Map) accountIterator.next();
+        assertLegacyAccount(accountMap);
+        assertTrue(accountIterator.hasNext());
+        accountMap = (Map) accountIterator.next();
+        assertLegacyAccount(accountMap);
         assertFalse(accountIterator.hasNext());
+    }
+
+    private void assertLegacyAccount(final Map<String, Object> accountMap) {
+        if ("GBP".equals(accountMap.get("currency"))) {
+            assertEquals(new BigDecimal("500.00"), accountMap.get("balance"));
+        } else if ("USD".equals(accountMap.get("currency"))) {
+            assertEquals(new BigDecimal("400.00"), accountMap.get("balance"));
+        }
     }
 
     /**
