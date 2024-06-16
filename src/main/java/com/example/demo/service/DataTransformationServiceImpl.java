@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,12 @@ import org.kie.api.command.Command;
 import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.internal.command.CommandFactory;
 import org.kie.internal.io.ResourceFactory;
 
+import com.example.demo.model.Account;
 import com.example.demo.model.Customer;
 import com.example.demo.report.Message.Type;
 import com.example.demo.report.ReportFactoryImpl;
@@ -50,33 +54,38 @@ public class DataTransformationServiceImpl {
     /**
      * transforms customerMap, creates and stores new customer
      */
-    protected void processCustomer(Map customerMap) {
+    public Customer processCustomer(Map customerMap) {
+        Customer customer = new Customer();
         ValidationReport validationReport = reportFactory.createValidationReport();
 
         List<Command<?>> commands = new ArrayList<Command<?>>();
         commands.add(CommandFactory.newSetGlobal("validationReport", validationReport));
         commands.add(CommandFactory.newInsert(customerMap));
-        commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter("findAllCustomers")));
-        commands.add(CommandFactory.newQuery("address", "getAddressByCustomerId", new Object[] { customerMap }));
+        commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter("addAccountMap")));
         commands.add(CommandFactory.newQuery("accounts", "getAccountByCustomerId", new Object[] { customerMap }));
         ExecutionResults results = kieSession.execute(CommandFactory.newBatchExecution(commands));
 
         if (!validationReport.getMessagesByType(Type.ERROR).isEmpty()) {
-//     logError(validationReport
-//         .getMessagesByType(Type.ERROR));
-//     logwarning(validationReport
-//          .getMessagesByType(Type.WARNING));
+            System.out.println("Error in validation report.");
         } else {
-//     logwarning(validationReport
-//          .getMessagesByType(Type.WARNING));
-            Customer customer = buildCustomer(customerMap, results);
-//     bankingService.add(customer); // runs validation
+            customer = buildCustomer(customerMap, results);
+            System.out.println("Customer created :" + customer);
         }
+        System.out.println("processCustomer returning customer:" + customer);
+        return customer;
     }
 
-    private Customer buildCustomer(Map customerMap, ExecutionResults results) {
-        // TODO Auto-generated method stub
-        return null;
+    private Customer buildCustomer(final Map customerMap, final ExecutionResults results) {
+        final Customer customer = new Customer();
+        final QueryResults accountQueryResults = (QueryResults) results.getValue("accounts");
+        for (QueryResultsRow accountQueryResult : accountQueryResults) {
+            Map accountMap = (Map) accountQueryResult.get("$accountMap");
+            Account account = new Account();
+            account.setCurrency((String) accountMap.get("currency"));
+            account.setBalance(new BigDecimal((String)accountMap.get("balance")).longValue());
+            customer.getAccounts().add(account);
+        }
+        return customer;
     }
 
 }

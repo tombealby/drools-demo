@@ -17,11 +17,13 @@ public class MockLegacyBankService implements LegacyBankService {
         Customer customer1 = createBasicCustomer();
         customerMap1.put("Customer", customer1);
         customerMap1.put("customer_id", 1);
+        customerMap1.put("_type_", "Customer");
 
         Map<String, Object> customerMap2 = new HashMap<>();
         Customer customer2 = createBasicCustomer();
         customerMap2.put("Customer", customer2);
         customerMap2.put("customer_id", 2);
+        customerMap2.put("_type_", "Customer");
 
         List<Map<String, Object>> allCustomers = new ArrayList<>();
         allCustomers.add(customerMap1);
@@ -52,9 +54,28 @@ public class MockLegacyBankService implements LegacyBankService {
     }
 
     @Override
-    public List<Map<String, Object>> findAccountByCustomerId(Long customerId) {
-        // TODO Auto-generated method stub
-        return null;
+    public Map<String, Object> findAccountByCustomerId(Long customerId) {
+        Map<String, Object> accountMap1 = new HashMap<>();
+        accountMap1.put("_type_", "Account");
+        accountMap1.put("currency", "USD");
+        accountMap1.put("balance", "1000");
+        accountMap1.put("customer_id", 1);
+
+        Map<String, Object> accountMap2 = new HashMap<>();
+        accountMap2.put("_type_", "Account");
+        accountMap2.put("currency", "GBP");
+        accountMap2.put("balance", "500");
+        accountMap2.put("customer_id", 2);
+
+        List<Map<String, Object>> addresesForCustomer = new ArrayList<>();
+        addresesForCustomer.add(accountMap1);
+        addresesForCustomer.add(accountMap2);
+
+        if (customerId == 1) {
+            return accountMap1;
+        } else {
+            return accountMap2;
+        }
     }
 
     private Customer createBasicCustomer() {

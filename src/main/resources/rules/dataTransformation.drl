@@ -29,6 +29,22 @@ then
 		insert( $customerMap )
 		System.out.println ("findAllCustomers consequence inserted  " + $customerMap);
 end
+////////////////////
+rule addAccountMap
+dialect "mvel"
+   when
+      $customerMap : Map( this["_type_"] == "Customer" )
+       $accountMap : Map( )
+         from legacyService.findAccountByCustomerId(
+            $customerMap["customer_id"] )
+   then
+      $accountMap["_type_"] = "Account"
+       insert( $accountMap )
+       System.out.println ("addAccountMap consequence inserted  " + $accountMap);
+end
+//////////////
+
+
 rule findAddress
 dialect "mvel"
    when
