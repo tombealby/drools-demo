@@ -142,7 +142,7 @@ end
 
 query getAccountByCustomerId (Map customerMap)
     // need a map with key "_type_" == "Account" in the drools session.
-    // I tested this by adding such a map by calling rule addAccountMap
+    // I tested this by adding such a map by calling rule addAccountMapToDroolsSession
     // before calling this drools query.
     // Then the query extracts the customer_id value from the customerMap passed as a
     // parameter to this query, and filters the accounts in the session using
