@@ -61,7 +61,7 @@ public class DataTransformationServiceImpl {
         List<Command<?>> commands = new ArrayList<Command<?>>();
         commands.add(CommandFactory.newSetGlobal("validationReport", validationReport));
         commands.add(CommandFactory.newInsert(customerMap));
-        commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter("addAccountMap")));
+        commands.add(new FireAllRulesCommand(new RuleNameEqualsAgendaFilter("addAccountMapToDroolsSession")));
         commands.add(CommandFactory.newQuery("accounts", "getAccountByCustomerId", new Object[] { customerMap }));
         ExecutionResults results = kieSession.execute(CommandFactory.newBatchExecution(commands));
 

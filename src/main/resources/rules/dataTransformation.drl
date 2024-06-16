@@ -29,8 +29,7 @@ then
 		insert( $customerMap )
 		System.out.println ("findAllCustomers consequence inserted  " + $customerMap);
 end
-////////////////////
-rule addAccountMap
+rule addAccountMapToDroolsSession
 dialect "mvel"
    when
       $customerMap : Map( this["_type_"] == "Customer" )
@@ -40,11 +39,8 @@ dialect "mvel"
    then
       $accountMap["_type_"] = "Account"
        insert( $accountMap )
-       System.out.println ("addAccountMap consequence inserted  " + $accountMap);
+       System.out.println ("addAccountMapToDroolsSession consequence inserted  " + $accountMap);
 end
-//////////////
-
-
 rule findAddress
 dialect "mvel"
    when
@@ -145,6 +141,14 @@ query getCustomer
 end
 
 query getAccountByCustomerId (Map customerMap)
+    // need a map with key "_type_" == "Account" in the drools session.
+    // I tested this by adding such a map by calling rule addAccountMap
+    // before calling this drools query.
+    // Then the query extracts the customer_id value from the customerMap passed as a
+    // parameter to this query, and filters the accounts in the session using
+    // that customer_id.
+    // This query is called from DataTransformationServiceImpl.processCustomer
+    // and tested in DataTransformationServiceImplTest.java
 	$accountMap : Map( this["_type_"] == "Account",
 		this["customer_id"] == customerMap["customer_id"] )
 end
