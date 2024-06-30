@@ -6,5 +6,7 @@ public interface ReportFactory {
 
     Message createMessage(Message.Type type, String messageKey,
         Object... context);
+    
+    public ValidationReport getValidationReport();
 
 }

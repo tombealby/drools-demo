@@ -6,10 +6,15 @@ import java.util.List;
 import com.example.demo.report.Message.Type;
 
 public class ReportFactoryImpl implements ReportFactory {
+    
+    private ValidationReport validationReport;
 
     @Override
     public ValidationReport createValidationReport() {
-        return new ValidationReportImpl();
+        if (validationReport == null) {
+            validationReport = new ValidationReportImpl();
+        }
+        return validationReport;
     }
 
     @Override
@@ -17,6 +22,10 @@ public class ReportFactoryImpl implements ReportFactory {
 
         final List<Object> contextList = Arrays.asList(context);
         return new MessageImpl(type, messageKey, contextList) ;
+    }
+    
+    public ValidationReport getValidationReport() {
+        return validationReport;
     }
 
 }
